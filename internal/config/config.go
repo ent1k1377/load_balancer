@@ -2,24 +2,28 @@ package config
 
 import (
 	"encoding/json"
+	"github.com/ent1k1377/load_balancer/internal/logger"
 	"os"
 )
 
 type Config struct {
-	Port     string   `json:"port"`
+	Port     int      `json:"port"`
 	Backends []string `json:"backends"`
 }
 
-func LoadConfig(path string) *Config {
+func LoadConfig(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to read config file: %v", err)
+		return nil, err
 	}
 
 	var config Config
 	if err := json.Unmarshal(data, &config); err != nil {
-		panic(err)
+		logger.Errorf("failed to unmarshal config file: %v", err)
+		return nil, err
 	}
 
-	return &config
+	logger.Info("config loaded successfully")
+	return &config, nil
 }
