@@ -28,11 +28,13 @@ func (s *ServerPool) AddBackend(newBackend *Backend) {
 func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
 	back := s.GetNextBackend()
 	if back != nil {
+		logger.Infof("Backend is %s", back.URL.String())
 		back.ReverseProxy.ServeHTTP(w, r)
 		return
 	}
 
-	// логирование
+	logger.Error("All backends are not working")
+	http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
 }
 
 func (s *ServerPool) GetNextBackend() *Backend {
@@ -46,7 +48,6 @@ func (s *ServerPool) GetNextBackend() *Backend {
 		return nil
 	}
 
-	logger.Debugf("Selecting backend using strategy: %v", s.strategy)
 	return s.strategy(s)
 }
 

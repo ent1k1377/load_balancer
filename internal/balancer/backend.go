@@ -2,6 +2,7 @@ package balancer
 
 import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"sync"
@@ -24,13 +25,25 @@ func NewBackend(rawURL string) (*Backend, error) {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(serverUrl)
-
-	logger.Infof("Successfully created backend for URL: %s", rawURL)
-	return &Backend{
+	newBackend := &Backend{
 		URL:          serverUrl,
 		Alive:        true,
 		ReverseProxy: proxy,
-	}, nil
+	}
+	newBackend.ReverseProxy.ErrorHandler = ErrorHandler(newBackend)
+
+	logger.Infof("Successfully created backend for URL: %s", rawURL)
+	return newBackend, nil
+}
+
+func ErrorHandler(b *Backend) func(w http.ResponseWriter, r *http.Request, err error) {
+	return func(w http.ResponseWriter, r *http.Request, err error) {
+		logger.Errorf("Backend %s is down: %v", b.URL, err)
+
+		b.Alive = false
+
+		http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
+	}
 }
 
 func (b *Backend) IsAlive() bool {

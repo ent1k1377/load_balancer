@@ -1,54 +1,59 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
 
+const defaultSettings = log.Ldate | log.Ltime | log.Lshortfile
+
 var (
-	debugLogger = log.New(os.Stdout, "[DEBUG] ", log.Ldate|log.Ltime|log.Lshortfile)
-	infoLogger  = log.New(os.Stdout, "[INFO] ", log.Ldate|log.Ltime|log.Lshortfile)
-	warnLogger  = log.New(os.Stderr, "[WARN] ", log.Ldate|log.Ltime|log.Lshortfile)
-	errorLogger = log.New(os.Stderr, "[ERROR] ", log.Ldate|log.Ltime|log.Lshortfile)
-	fatalLogger = log.New(os.Stderr, "[FATAL] ", log.Ldate|log.Ltime|log.Lshortfile)
+	debugLogger = log.New(os.Stdout, "[DEBUG] ", defaultSettings)
+	infoLogger  = log.New(os.Stdout, "[INFO] ", defaultSettings)
+	warnLogger  = log.New(os.Stderr, "[WARN] ", defaultSettings)
+	errorLogger = log.New(os.Stderr, "[ERROR] ", defaultSettings)
+	fatalLogger = log.New(os.Stderr, "[FATAL] ", defaultSettings)
 )
 
 func Debug(v ...any) {
-	debugLogger.Println(v...)
+	debugLogger.Output(2, fmt.Sprintln(v...))
 }
 
 func Debugf(format string, v ...any) {
-	debugLogger.Printf(format, v...)
+	debugLogger.Output(2, fmt.Sprintf(format, v...)+"\n")
 }
 
 func Info(v ...any) {
-	infoLogger.Println(v...)
+	infoLogger.Output(2, fmt.Sprintln(v...))
 }
 
 func Infof(format string, v ...any) {
-	infoLogger.Printf(format, v...)
+	infoLogger.Output(2, fmt.Sprintf(format, v...)+"\n")
 }
 
 func Warn(v ...any) {
-	warnLogger.Println(v...)
+	warnLogger.Output(2, fmt.Sprintln(v...))
 }
 
 func Warnf(format string, v ...any) {
-	warnLogger.Printf(format, v...)
+	warnLogger.Output(2, fmt.Sprintf(format, v...)+"\n")
 }
 
 func Error(v ...any) {
-	errorLogger.Println(v...)
+	errorLogger.Output(2, fmt.Sprintln(v...))
 }
 
 func Errorf(format string, v ...any) {
-	errorLogger.Printf(format, v...)
+	errorLogger.Output(2, fmt.Sprintf(format, v...)+"\n")
 }
 
 func Fatal(v ...any) {
-	fatalLogger.Fatalln(v...)
+	fatalLogger.Output(2, fmt.Sprintln(v...))
+	os.Exit(1)
 }
 
 func Fatalf(format string, v ...any) {
-	fatalLogger.Fatalf(format, v...)
+	fatalLogger.Output(2, fmt.Sprintf(format, v...)+"\n")
+	os.Exit(1)
 }
