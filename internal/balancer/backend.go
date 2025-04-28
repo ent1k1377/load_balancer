@@ -2,10 +2,12 @@ package balancer
 
 import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"sync"
+	"time"
 )
 
 type Backend struct {
@@ -62,4 +64,17 @@ func (b *Backend) SetAlive(alive bool) {
 	}
 
 	b.Alive = alive
+}
+
+func (b *Backend) checkAlive() bool {
+	timeout := time.Second * 1
+	conn, err := net.DialTimeout("tcp", b.URL.Host, timeout)
+	if err != nil {
+		logger.Warnf("Backend %s is down: %v", b.URL, err)
+		return false
+	}
+	defer conn.Close()
+
+	logger.Infof("Backend %s is alive", b.URL)
+	return true
 }

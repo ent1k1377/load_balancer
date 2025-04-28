@@ -8,7 +8,7 @@ import (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Received request: Method=%s, URL=%s\n", r.Method, r.URL.String())
+	log.Printf("Received request: Method=%s, URL=%s\n", r.Method, r.URL.String())
 
 	w.Write([]byte(fmt.Sprintf("Request received: Method=%s, URL=%s\n", r.Method, r.URL.String())))
 }
@@ -19,7 +19,7 @@ func main() {
 
 	http.HandleFunc("/", handler)
 
-	fmt.Printf("Starting server on port %s...\n", *port)
+	log.Printf("Starting server on port %s...\n", *port)
 
 	if err := http.ListenAndServe(":"+(*port), nil); err != nil {
 		log.Fatalf("Server failed: %v", err)

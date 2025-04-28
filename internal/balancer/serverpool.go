@@ -3,6 +3,7 @@ package balancer
 import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
 	"net/http"
+	"sync"
 	"sync/atomic"
 )
 
@@ -53,4 +54,19 @@ func (s *ServerPool) GetNextBackend() *Backend {
 
 func (s *ServerPool) NextIndex() int {
 	return int(atomic.AddUint64(&s.current, uint64(1)) % uint64(len(s.backends)))
+}
+
+func (s *ServerPool) HealthCheck() {
+	var wg sync.WaitGroup
+	defer wg.Add(len(s.backends))
+
+	for _, b := range s.backends {
+		go func(backend *Backend) {
+			defer wg.Done()
+			alive := backend.checkAlive()
+			backend.SetAlive(alive)
+		}(b)
+	}
+
+	wg.Wait()
 }

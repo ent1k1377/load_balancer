@@ -25,6 +25,8 @@ func createServerPool(cfg *config.Config) *balancer.ServerPool {
 		pool.AddBackend(backend)
 	}
 
+	go healthCheck(pool)
+
 	logger.Infof("Serverpool formed")
 	return pool
 }
@@ -57,5 +59,14 @@ func gracefulShutdown(server *http.Server) {
 
 	if err := server.Shutdown(ctx); err != nil {
 		logger.Errorf("Failed to gracefully shutdown server: %v", err)
+	}
+}
+
+func healthCheck(pool *balancer.ServerPool) {
+	logger.Info("Starting health check")
+	t := time.NewTicker(5 * time.Second)
+	for {
+		<-t.C
+		pool.HealthCheck()
 	}
 }
