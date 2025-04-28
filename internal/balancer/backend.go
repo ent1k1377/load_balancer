@@ -7,16 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"sync"
 	"time"
 )
-
-type Backend struct {
-	URL          *url.URL
-	Alive        bool
-	mux          sync.RWMutex
-	ReverseProxy *httputil.ReverseProxy
-}
 
 func NewBackend(rawURL string) (*Backend, error) {
 	logger.Infof("Creating backend for URL: %s", rawURL)

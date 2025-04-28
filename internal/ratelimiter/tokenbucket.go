@@ -26,6 +26,8 @@ func NewTokenBucket(capacity int, refillRate int, refillPeriod time.Duration) *T
 
 func (b *TokenBucket) tryTake() bool {
 	b.refill()
+	b.mux.Lock()
+	defer b.mux.Unlock()
 
 	if b.tokens > 0 {
 		b.tokens--
@@ -36,9 +38,11 @@ func (b *TokenBucket) tryTake() bool {
 }
 
 func (b *TokenBucket) refill() {
+	b.mux.Lock()
+	defer b.mux.Unlock()
+
 	now := time.Now()
-	now.Sub(now)
-	elapsed := time.Since(time.Now())
+	elapsed := now.Sub(b.lastRefill)
 
 	if elapsed >= b.refillPeriod {
 		newTokens := int(elapsed/b.refillPeriod) * b.refillRate

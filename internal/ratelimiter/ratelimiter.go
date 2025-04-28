@@ -3,6 +3,7 @@ package ratelimiter
 import (
 	"github.com/ent1k1377/load_balancer/internal/utils"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -26,10 +27,23 @@ func NewRateLimiter(defaultCapacity, defaultRefillRate int, defaultRefillPeriod 
 	return rl
 }
 
+func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		addr := r.RemoteAddr
+		ip := strings.Split(addr, ":")[0]
+		if rl.Allow(ip) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		utils.WriteJSONError(w, "Too many requests", http.StatusTooManyRequests)
+	})
+}
+
 func (rl *RateLimiter) Allow(client string) bool {
-	rl.mux.RLock()
+	rl.mux.Lock()
+	defer rl.mux.Unlock()
 	bucket, exists := rl.buckets[client]
-	rl.mux.RUnlock()
 
 	if !exists {
 		bucket = NewTokenBucket(rl.defaultCapacity, rl.defaultRefillRate, rl.defaultRefillPeriod)
@@ -37,16 +51,4 @@ func (rl *RateLimiter) Allow(client string) bool {
 	}
 
 	return bucket.tryTake()
-}
-
-func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		client := r.RemoteAddr
-		if rl.Allow(client) {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		utils.WriteJSONError(w, "Too many requests", http.StatusTooManyRequests)
-	})
 }

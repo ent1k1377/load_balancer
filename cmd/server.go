@@ -14,7 +14,8 @@ import (
 )
 
 func createServerPool(cfg *config.Config) *balancer.ServerPool {
-	pool := balancer.NewServerPool(balancer.RoundRobinStrategy)
+	strategy := balancer.NewRoundRobinStrategy()
+	pool := balancer.NewServerPool(strategy)
 
 	for _, rawURL := range cfg.Backends {
 		backend, err := balancer.NewBackend(rawURL)
