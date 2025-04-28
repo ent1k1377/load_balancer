@@ -2,6 +2,7 @@ package balancer
 
 import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
+	"github.com/ent1k1377/load_balancer/internal/utils"
 	"net/http"
 	"sync"
 	"sync/atomic"
@@ -35,7 +36,7 @@ func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Error("All backends are not working")
-	http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
+	utils.WriteJSONError(w, "Service unavailable", http.StatusServiceUnavailable)
 }
 
 func (s *ServerPool) GetNextBackend() *Backend {

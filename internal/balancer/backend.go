@@ -2,6 +2,7 @@ package balancer
 
 import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
+	"github.com/ent1k1377/load_balancer/internal/utils"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -44,7 +45,7 @@ func ErrorHandler(b *Backend) func(w http.ResponseWriter, r *http.Request, err e
 
 		b.Alive = false
 
-		http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
+		utils.WriteJSONError(w, "Service unavailable", http.StatusServiceUnavailable)
 	}
 }
 

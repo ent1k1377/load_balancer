@@ -1,6 +1,7 @@
 package ratelimiter
 
 import (
+	"github.com/ent1k1377/load_balancer/internal/utils"
 	"net/http"
 	"sync"
 	"time"
@@ -46,6 +47,6 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		http.Error(w, "Too many requests", http.StatusTooManyRequests)
+		utils.WriteJSONError(w, "Too many requests", http.StatusTooManyRequests)
 	})
 }
