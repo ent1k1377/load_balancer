@@ -17,7 +17,7 @@ func main() {
 
 	pool := createServerPool(cfg)
 
-	rateLimiter := ratelimiter.NewRateLimiter(10, 10, time.Millisecond*500)
+	rateLimiter := ratelimiter.NewRateLimiter(10000, 10, time.Millisecond*500)
 
 	loadBalancer := http.HandlerFunc(pool.LoadBalancer)
 	handler := rateLimiter.Middleware(loadBalancer)

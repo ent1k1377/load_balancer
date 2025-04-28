@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+var emptyFunc = func() {}
+
 type Backend struct {
 	URL          *url.URL
 	Alive        bool

@@ -18,15 +18,15 @@ func NewRoundRobinStrategy() *RoundRobinStrategy {
 
 func (s *RoundRobinStrategy) NextBackend(backends []*Backend) (*Backend, func(), error) {
 	if len(backends) == 0 {
-		return nil, nil, errors.New("no available backend")
+		return nil, emptyFunc, errors.New("no available backend")
 	}
 
 	backend := s.choose(backends)
 	if backend == nil {
-		return nil, nil, errors.New("no available backend")
+		return nil, emptyFunc, errors.New("no available backend")
 	}
 
-	return backend, func() {}, nil
+	return backend, emptyFunc, nil
 }
 
 func (s *RoundRobinStrategy) choose(backends []*Backend) *Backend {

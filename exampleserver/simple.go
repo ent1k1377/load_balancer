@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request: Method=%s, URL=%s\n", r.Method, r.URL.String())
-	time.Sleep(time.Millisecond * 500)
+	// time.Sleep(time.Millisecond * 500)
 
 	w.Write([]byte(fmt.Sprintf("Request received: Method=%s, URL=%s\n", r.Method, r.URL.String())))
 }
