@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-var emptyFunc = func() {}
-
 type Backend struct {
 	URL          *url.URL
 	Alive        bool
@@ -23,3 +21,5 @@ type ServerPool struct {
 type Strategy interface {
 	NextBackend(backends []*Backend) (*Backend, func(), error)
 }
+
+var emptyFunc = func() {}

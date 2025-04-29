@@ -5,17 +5,13 @@ import (
 	"github.com/ent1k1377/load_balancer/internal/utils"
 	"net/http"
 	"sync"
+	"time"
 )
 
 func NewServerPool(strategy Strategy) *ServerPool {
 	return &ServerPool{
 		strategy: strategy,
 	}
-}
-
-func (s *ServerPool) AddBackend(newBackend *Backend) {
-	logger.Infof("Adding new backend: %s", newBackend.URL.String())
-	s.backends = append(s.backends, newBackend)
 }
 
 func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +27,22 @@ func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
 	back.ReverseProxy.ServeHTTP(w, r)
 }
 
-func (s *ServerPool) HealthCheck() {
+func (s *ServerPool) StartHealthChecks(interval int) {
+	go func() {
+		ticker := time.NewTicker(time.Duration(interval) * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			s.healthCheck()
+		}
+	}()
+}
+
+func (s *ServerPool) addBackend(newBackend *Backend) {
+	logger.Infof("Adding new backend: %s", newBackend.URL.String())
+	s.backends = append(s.backends, newBackend)
+}
+
+func (s *ServerPool) healthCheck() {
 	var wg sync.WaitGroup
 	defer wg.Add(len(s.backends))
 

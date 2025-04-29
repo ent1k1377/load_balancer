@@ -1,4 +1,13 @@
 {
   "port": 8080,
-  "backends": ["http://localhost:9001", "http://localhost:9002", "http://localhost:9003"]
+  "backends": [
+    "http://localhost:9001",
+    "http://localhost:9002",
+    "http://localhost:9003"
+  ],
+  "defaultCapacity": 500,
+  "defaultRefillRate": 1,
+  "defaultRefillPeriodMs": 500,
+  "strategy": "least_connections",
+  "healthCheckIntervalSec": 10
 }

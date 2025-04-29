@@ -7,8 +7,13 @@ import (
 )
 
 type Config struct {
-	Port     int      `json:"port"`
-	Backends []string `json:"backends"`
+	Port                int      `json:"port"`
+	Backends            []string `json:"backends"`
+	DefaultCapacity     int      `json:"defaultCapacity"`
+	DefaultRefillRate   int      `json:"defaultRefillRate"`
+	DefaultRefillPeriod int      `json:"defaultRefillPeriodMs"`
+	Strategy            string   `json:"strategy"`
+	HealthCheckInterval int      `json:"healthCheckIntervalSec"`
 }
 
 func LoadConfig(path string) (*Config, error) {

@@ -14,7 +14,7 @@ func createTestPool(t *testing.T, backends []string, strategy Strategy) *ServerP
 			t.Fatalf("failed to create backend, id - %v, url - %v: %v", i, rawURL, err)
 		}
 
-		pool.AddBackend(back)
+		pool.addBackend(back)
 	}
 
 	return pool
