@@ -14,6 +14,8 @@ func NewServerPool(strategy Strategy) *ServerPool {
 	}
 }
 
+// LoadBalancer — это обработчик HTTP-запросов, который использует стратегию для выбора подходящего backend'а.
+// Он выбирает backend, направляет запрос на выбранный backend
 func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
 	back, release, err := s.strategy.NextBackend(s.backends)
 	if err != nil {
@@ -27,6 +29,8 @@ func (s *ServerPool) LoadBalancer(w http.ResponseWriter, r *http.Request) {
 	back.ReverseProxy.ServeHTTP(w, r)
 }
 
+// StartHealthChecks запускает периодические проверки состояния backend'ов.
+// Задается интервал в секундах, через который будет выполняться проверка каждого backend'а.
 func (s *ServerPool) StartHealthChecks(interval int) {
 	go func() {
 		ticker := time.NewTicker(time.Duration(interval) * time.Second)
@@ -42,6 +46,8 @@ func (s *ServerPool) addBackend(newBackend *Backend) {
 	s.backends = append(s.backends, newBackend)
 }
 
+// healthCheck выполняет проверку состояния каждого backend'а.
+// Каждый backend проверяется на доступность, и его состояние обновляется.
 func (s *ServerPool) healthCheck() {
 	var wg sync.WaitGroup
 	defer wg.Add(len(s.backends))

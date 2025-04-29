@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// WriteJSONError отправляет ошибку в формате JSON с кодом состояния и сообщением.
 func WriteJSONError(w http.ResponseWriter, message string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)

@@ -5,13 +5,19 @@ import (
 	"time"
 )
 
+// TokenBucket представляет собой структуру для ограничения количества запросов с использованием алгоритма "токенное ведро".
 type TokenBucket struct {
-	capacity     int
-	tokens       int
-	refillRate   int
+	// capacity - максимальное количество токенов в ведре.
+	capacity int
+	// tokens - текущее количество токенов в ведре.
+	tokens int
+	// refillRate - количество токенов, которые добавляются в ведро за каждый refillPeriod.
+	refillRate int
+	// refillPeriod - период времени, через который обновляется количество токенов в ведре.
 	refillPeriod time.Duration
-	lastRefill   time.Time
-	mux          sync.Mutex
+	// lastRefill - время последнего пополнения токенов.
+	lastRefill time.Time
+	mux        sync.Mutex
 }
 
 func NewTokenBucket(capacity int, refillRate int, refillPeriod time.Duration) *TokenBucket {
@@ -24,6 +30,8 @@ func NewTokenBucket(capacity int, refillRate int, refillPeriod time.Duration) *T
 	}
 }
 
+// tryTake пытается забрать токен из ведра. Если токен доступен, уменьшает их количество на 1 и возвращает true.
+// Если токенов нет, возвращает false.
 func (b *TokenBucket) tryTake() bool {
 	b.refill()
 	b.mux.Lock()
@@ -37,6 +45,7 @@ func (b *TokenBucket) tryTake() bool {
 	return false
 }
 
+// refill пополняет ведро токенами, если прошел достаточный период времени с последнего пополнения.
 func (b *TokenBucket) refill() {
 	b.mux.Lock()
 	defer b.mux.Unlock()

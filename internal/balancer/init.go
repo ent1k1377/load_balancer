@@ -5,6 +5,8 @@ import (
 	"github.com/ent1k1377/load_balancer/internal/logger"
 )
 
+// InitServerPool инициализирует ServerPool с выбранной стратегией
+// и добавляет в него список backend'ов из конфигурации. Также запускает health check.
 func InitServerPool(cfg *config.Config) *ServerPool {
 	strategy := strategyByName(cfg.Strategy)
 	pool := NewServerPool(strategy)
@@ -21,6 +23,8 @@ func InitServerPool(cfg *config.Config) *ServerPool {
 	return pool
 }
 
+// strategyByName возвращает реализацию Strategy по её имени из конфигурации.
+// Поддерживаемые значения: "round_robin", "least_connections".
 func strategyByName(name string) Strategy {
 	switch name {
 	case "round_robin":

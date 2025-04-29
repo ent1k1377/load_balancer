@@ -3,8 +3,3 @@
 Зачем нужно обновлять количество токенов с таймером и при использовании ленивого обновления
 
 Баг когда отключаешь все сервера, Health Check падает
-
-
-rateLimiter := ratelimiter.NewRateLimiter(10000, 10, time.Millisecond*500)
-strategy := balancer.NewLeastConnections()
-t := time.NewTicker(5 * time.Second) healthCheck

@@ -6,8 +6,10 @@ import (
 	"sync"
 )
 
+// LeastConnectionsStrategy реализует стратегию балансировки нагрузки,
+// при которой запрос направляется на backend с наименьшим числом активных подключений.
 type LeastConnectionsStrategy struct {
-	activeConnections map[*Backend]int
+	activeConnections map[*Backend]int // Количество активных подключений на каждый backend
 	mux               sync.Mutex
 }
 
@@ -17,6 +19,9 @@ func NewLeastConnections() *LeastConnectionsStrategy {
 	}
 }
 
+// NextBackend выбирает backend с наименьшим числом активных подключений среди доступных.
+// Возвращает также функцию release, которую нужно вызвать после завершения обработки запроса,
+// чтобы освободить подключение, и ошибку в случае отсутствия доступных backend'ов.
 func (s *LeastConnectionsStrategy) NextBackend(backends []*Backend) (*Backend, func(), error) {
 	if len(backends) == 0 {
 		return nil, emptyFunc, fmt.Errorf("no backends available")

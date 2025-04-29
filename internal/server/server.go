@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Start запускает HTTP сервер и начинает слушать на указанном адресе.
 func Start(addr string, handler http.Handler) {
 	server := &http.Server{Addr: addr, Handler: handler}
 	go gracefulShutdown(server)
@@ -21,6 +22,8 @@ func Start(addr string, handler http.Handler) {
 	}
 }
 
+// gracefulShutdown обрабатывает завершение работы сервера по сигналам ОС (SIGINT, SIGTERM).
+// Он ожидает сигнал завершения, а затем корректно закрывает сервер.
 func gracefulShutdown(server *http.Server) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

@@ -6,8 +6,10 @@ import (
 	"sync/atomic"
 )
 
+// RoundRobinStrategy реализует стратегию круговой балансировки нагрузки (Round Robin),
+// при которой запросы направляются поочередно на доступные backend'ы.
 type RoundRobinStrategy struct {
-	current uint64
+	current uint64 // Индекс текущего выбранного backend'а
 }
 
 func NewRoundRobinStrategy() *RoundRobinStrategy {
@@ -16,6 +18,9 @@ func NewRoundRobinStrategy() *RoundRobinStrategy {
 	}
 }
 
+// NextBackend выбирает следующий доступный backend из списка backends.
+// Возвращает выбранный backend и пустую функцию для освобождения ресурса (не используется в данной стратегии),
+// а также ошибку, если доступных backend'ов нет.
 func (s *RoundRobinStrategy) NextBackend(backends []*Backend) (*Backend, func(), error) {
 	if len(backends) == 0 {
 		return nil, emptyFunc, errors.New("no available backend")
@@ -29,6 +34,9 @@ func (s *RoundRobinStrategy) NextBackend(backends []*Backend) (*Backend, func(),
 	return backend, emptyFunc, nil
 }
 
+// choose выбирает backend, который будет обработан следующим. Алгоритм использует
+// текущий индекс и проверяет доступность каждого backend'а по очереди.
+// Если backend не доступен, продолжается проверка следующих до тех пор, пока не будет найден живой backend.
 func (s *RoundRobinStrategy) choose(backends []*Backend) *Backend {
 	next := s.nextIndex(len(backends))
 	l := len(backends) + next
@@ -48,6 +56,9 @@ func (s *RoundRobinStrategy) choose(backends []*Backend) *Backend {
 	return nil
 }
 
+// nextIndex вычисляет индекс следующего backend'а для выбора.
+// Индекс вычисляется как остаток от деления текущего индекса на количество доступных backend'ов.
+// Это обеспечивает круговую балансировку (Round Robin).
 func (s *RoundRobinStrategy) nextIndex(amountBackends int) int {
 	return int(atomic.AddUint64(&s.current, uint64(1)) % uint64(amountBackends))
 }

@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// NewBackend создаёт новый экземпляр Backend по переданному URL.
+// Он настраивает reverse proxy и обрабатывает ошибки с помощью ErrorHandler.
 func NewBackend(rawURL string) (*Backend, error) {
 	logger.Infof("Creating backend for URL: %s", rawURL)
 
@@ -31,6 +33,8 @@ func NewBackend(rawURL string) (*Backend, error) {
 	return newBackend, nil
 }
 
+// ErrorHandler возвращает функцию для обработки ошибок проксирования.
+// При возникновении ошибки помечает backend как неактивный и отправляет клиенту ошибку.
 func ErrorHandler(b *Backend) func(w http.ResponseWriter, r *http.Request, err error) {
 	return func(w http.ResponseWriter, r *http.Request, err error) {
 		logger.Errorf("Backend %s is down: %v", b.URL, err)
@@ -41,6 +45,7 @@ func ErrorHandler(b *Backend) func(w http.ResponseWriter, r *http.Request, err e
 	}
 }
 
+// IsAlive возвращает текущее состояние активности backend'а.
 func (b *Backend) IsAlive() bool {
 	b.mux.RLock()
 	defer b.mux.RUnlock()
@@ -48,6 +53,7 @@ func (b *Backend) IsAlive() bool {
 	return b.Alive
 }
 
+// SetAlive обновляет статус активности backend'а и логирует изменение.
 func (b *Backend) SetAlive(alive bool) {
 	b.mux.Lock()
 	defer b.mux.Unlock()
@@ -59,6 +65,8 @@ func (b *Backend) SetAlive(alive bool) {
 	b.Alive = alive
 }
 
+// checkAlive проверяет, доступен ли backend по TCP-соединению.
+// Используется для healthCheck.
 func (b *Backend) checkAlive() bool {
 	timeout := time.Second * 1
 	conn, err := net.DialTimeout("tcp", b.URL.Host, timeout)

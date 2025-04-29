@@ -20,7 +20,11 @@ func main() {
 
 	pool := balancer.InitServerPool(cfg)
 
-	rateLimiter := ratelimiter.NewRateLimiter(cfg.DefaultCapacity, cfg.DefaultRefillRate, time.Duration(cfg.DefaultRefillPeriod)*time.Millisecond)
+	rateLimiter := ratelimiter.NewRateLimiter(
+		cfg.DefaultCapacity,
+		cfg.DefaultRefillRate,
+		time.Duration(cfg.DefaultRefillPeriod)*time.Millisecond,
+	)
 
 	loadBalancer := http.HandlerFunc(pool.LoadBalancer)
 	handler := rateLimiter.Middleware(loadBalancer)

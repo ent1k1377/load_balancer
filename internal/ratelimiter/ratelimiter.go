@@ -8,10 +8,15 @@ import (
 	"time"
 )
 
+// RateLimiter представляет механизм ограничения частоты запросов на основе токенов.
 type RateLimiter struct {
-	buckets             map[string]*TokenBucket
-	defaultCapacity     int
-	defaultRefillRate   int
+	// buckets хранит карты токенов для каждого клиента (IP-адреса).
+	buckets map[string]*TokenBucket
+	// defaultCapacity задает максимальную ёмкость корзины токенов.
+	defaultCapacity int
+	// defaultRefillRate задает скорость пополнения корзины токенов.
+	defaultRefillRate int
+	// defaultRefillPeriod задает период пополнения корзины токенов.
 	defaultRefillPeriod time.Duration
 	mux                 sync.RWMutex
 }
@@ -27,6 +32,7 @@ func NewRateLimiter(defaultCapacity, defaultRefillRate int, defaultRefillPeriod 
 	return rl
 }
 
+// Middleware возвращает http.Handler, который ограничивает количество запросов с одного клиента.
 func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		addr := r.RemoteAddr
@@ -40,6 +46,7 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 	})
 }
 
+// Allow проверяет, можно ли разрешить клиенту выполнить запрос.
 func (rl *RateLimiter) Allow(client string) bool {
 	rl.mux.Lock()
 	defer rl.mux.Unlock()
